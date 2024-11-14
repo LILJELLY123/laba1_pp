@@ -1,0 +1,16 @@
+{
+    "courses": [
+        {
+            "name": "Python Programming",
+            "description": "Learn the fundamentals of Python",
+            "instructor": "Sergey Gurikov",
+            "price": 3499.99
+        },
+        {
+            "name": "Computer Graphic",
+            "description": "Graphic design and 3D modelling",
+            "instructor": "Olga Borisova",
+            "price": 2999.99
+        }
+    ]
+}

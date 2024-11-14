@@ -1,0 +1,12 @@
+{
+    "name": "Alexey Shurigin",
+    "email": "alexey@example.com",
+    "enrolled_courses": [
+        {
+            "name": "Python Programming"
+        },
+        {
+            "name": "Computer Graphic"
+        }
+    ]
+}
