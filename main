@@ -2,17 +2,17 @@ import xml.etree.ElementTree as ET
 import json
 
 class Course:
-    def init(self, name, description, instructor, price):
+    def __init__(self, name, description, instructor, price):
         self.name = name
         self.description = description
         self.instructor = instructor
         self.price = price
 
-    def str(self):
+    def __str__(self):
         return f"Course: {self.name}\nDescription: {self.description}\nInstructor: {self.instructor}\nPrice: {self.price}"
 
 class Student:
-    def init(self, name, email, enrolled_courses=[]):
+    def __init__(self, name, email, enrolled_courses=[]):
         self.name = name
         self.email = email
         self.enrolled_courses = enrolled_courses
@@ -20,7 +20,7 @@ class Student:
     def enroll(self, course):
         self.enrolled_courses.append(course)
 
-    def str(self):
+    def __str__(self):
         return f"Student: {self.name}\nEmail: {self.email}\nEnrolled Courses: {', '.join([c.name for c in self.enrolled_courses])}"
 
 def read_courses_from_xml(file_path):
@@ -126,11 +126,11 @@ def write_student_to_json(student, file_path):
         print(f"Ошибка записи студента в JSON: {e}")
 
 # Создание курсов
-course1 = Course("Python Programming", "Learn the fundamentals of Python", "Gurikov Sergey", 5000)
-course2 = Course("Computer graphics", "Graphic design and 3D modeling", "Borisova Olga", 3500)
+course1 = Course("Python Programming", "Learn the fundamentals of Python", "Sergey Gurikov", 3499.99)
+course2 = Course("Computer Graphic", "Graphic design and 3D modelling", "Olga Borisova", 2999.99)
 
 # Создание студента
-student1 = Student("Shurigin Alexey", "alexey@example.com")
+student1 = Student("Alexey Shurigin", "alexey@example.com")
 student1.enroll(course1)
 student1.enroll(course2)
 
