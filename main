@@ -1,0 +1,82 @@
+import xml.etree.ElementTree as ET
+import json
+
+class Course:
+    def __init__(self, name, description, instructor, price):
+        self.name = name
+        self.description = description
+        self.instructor = instructor
+        self.price = price
+
+    def __str__(self):
+        return f"Course: {self.name}\nDescription: {self.description}\nInstructor: {self.instructor}\nPrice: {self.price}"
+
+class Student:
+    def __init__(self, name, email, enrolled_courses=[]):
+        self.name = name
+        self.email = email
+        self.enrolled_courses = enrolled_courses
+
+    def enroll(self, course):
+        self.enrolled_courses.append(course)
+
+    def __str__(self):
+        return f"Student: {self.name}\nEmail: {self.email}\nEnrolled Courses: {', '.join([c.name for c in self.enrolled_courses])}"
+
+def read_courses_from_xml(file_path):
+    try:
+        tree = ET.parse(file_path)
+        root = tree.getroot()
+        courses = []
+        for course_element in root.findall('course'):
+            name = course_element.find('name').text
+            description = course_element.find('description').text
+            instructor = course_element.find('instructor').text
+            price = float(course_element.find('price').text)
+            courses.append(Course(name, description, instructor, price))
+        return courses
+    except FileNotFoundError:
+        print(f"Ошибка: Файл не найден: {file_path}")
+        return []
+    except ET.ParseError:
+        print(f"Ошибка: Неверный XML файл: {file_path}")
+        return []
+    except Exception as e:
+        print(f"Ошибка при чтении файла: {e}")
+        return []
+
+def write_courses_to_xml(courses, file_path):
+    try:
+        root = ET.Element("courses")
+        for course in courses:
+            course_element = ET.SubElement(root,"course")
+            ET.SubElement(course_element, "name").text = course.name
+            ET.SubElement(course_element, "description").text = course.description
+            ET.SubElement(course_element, "instructor").text = course.instructor
+            ET.SubElement(course_element, "price").text = str(course.price)
+        tree = ET.ElementTree(root)
+        tree.write(file_path)
+    except Exception as e:
+        print(f"Error writing to XML: {e}")
+
+def read_courses_from_json(file_path):
+    try:
+        with open(file_path, "r") as f:
+            data = json.load(f)
+            courses = []
+            for course_data in data["courses"]:
+                name = course_data["name"]
+                description = course_data["description"]
+                instructor = course_data["instructor"]
+                price = course_data["price"]
+                courses.append(Course(name, description, instructor, price))
+            return courses
+    except FileNotFoundError:
+        print(f"Ошибка: Файл не найден: {file_path}")
+        return []
+    except json.JSONDecodeError:
+        print(f"Ошибка: Неверный JSON файл: {file_path}")
+        return []
+    except Exception as e:
+        print(f"Ошибка при чтении файла JSON: {e}")
+        return []
