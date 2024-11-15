@@ -44,20 +44,25 @@ class Group:
 #Класс Расписание
 class Schedule:
     def __init__(self):
-        self.schedule = {}  # {course_name: [{"date": datetime, "time": str}]}
+        self.schedule = {}
 
-    def add_course(self, course_name, dates):
+    def add_course(self, course_name, dates, instructor):
         self.schedule[course_name] = dates
+        self.schedule[course_name].append(instructor)
 
     def get_schedule(self, course_name):
         return self.schedule.get(course_name, [])
 
     def __str__(self):
         schedule_str = ""
-        for course, dates in self.schedule.items():
-            schedule_str += f"\nCourse: {course}\n"
+        for course, data in self.schedule.items():
+            dates = data[:-1]
+            instructor = data[-1]
+
+            schedule_str += f"\nCourse: {course.name}\n"
             for date_info in dates:
                 schedule_str += f"  Date: {date_info['date'].strftime('%Y-%m-%d')}, Time: {date_info['time']}\n"
+            schedule_str += f"  Instructor: {instructor.name}\n"  #  Выведите имя преподавателя
         return schedule_str
 
 #Класс Оплата
@@ -197,32 +202,41 @@ student1.enroll(course2)
 
 schedule = Schedule()
 group1 = Group("Group 1")
+group2 = Group("Group 2")
 instructor1 = Instructor("Sergey Gurikov", "guria.ser@example.com")
+instructor2 = Instructor("Olga Borisova", "borisova.olga@example.com")
 
-student1 = Student("Alexey Shurigin", "alexey@example.com")
 student2 = Student("Kirill Xan", "xan@example.com")
+student2.enroll(course1)
+student2.enroll(course2)
 
 group1.add_student(student1)
 group1.add_student(student2)
+group2.add_student(student1)
 
 instructor1.add_course(course1)
+instructor2.add_course(course2)
 
-schedule.add_course("group", [{"date": datetime(2024, 11, 15), "time": "10:00"}, {"date": datetime(2024, 11, 16), "time": "10:00"}])
-
-payment1 = Payment(student1, course1, 50)
-payment2 = Payment(student2, course2, 75)
+schedule.add_course(course1, [{"date": datetime(2024, 11, 15), "time": "10:00"}, {"date": datetime(2024, 11, 16), "time": "10:00"}],  instructor1)
+schedule.add_course(course2, [{"date": datetime(2024, 11, 15), "time": "14:00"}, {"date": datetime(2024, 11, 16), "time": "14:00"}],  instructor2)
+payment1 = Payment(student1, course1, 3499.99)
+payment2 = Payment(student2, course2, 2999.99)
 
 print(group1)
+print(group2)
 print(instructor1)
+print(instructor2)
 print(schedule)
 print(payment1)
 print(payment2)
 
 # Запись студента в XML
-write_student_to_xml(student1, "student.xml")
+write_student_to_xml(student1, "student1.xml")
+write_student_to_xml(student2, "student2.xml")
 
 # Запись студента в JSON
-write_student_to_json(student1, "student.json")
+write_student_to_json(student1, "student1.json")
+write_student_to_json(student2, "student2.json")
 
 # Запись курсов в XML
 write_courses_to_xml([course1, course2], "courses.xml")
@@ -236,4 +250,3 @@ write_courses_to_json([course1, course2], "courses.json")
 
 # Чтение курсов в JSON
 courses_from_json = read_courses_from_json("courses.json")
-print(courses_from_json)
