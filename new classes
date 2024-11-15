@@ -40,3 +40,15 @@ class Payment:
 
     def __str__(self):
         return f"Payment: Student - {self.student.name}, Course - {self.course.name}, Amount - {self.amount}, Date - {self.date.strftime('%Y-%m-%d %H:%M:%S')}"
+
+class Instructor:
+    def __init__(self, name, email):
+        self.name = name
+        self.email = email
+        self.courses = []
+
+    def add_course(self, course):
+        self.courses.append(course)
+
+    def __str__(self):
+        return f"Instructor: {self.name}\nEmail: {self.email}\nCourses: {[course.name for course in self.courses]}"
