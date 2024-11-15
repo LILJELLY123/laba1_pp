@@ -1,0 +1,42 @@
+class Group:
+    def __init__(self, name, students=[]):
+        self.name = name
+        self.students = students
+
+    def add_student(self, student):
+        self.students.append(student)
+
+    def remove_student(self, student):
+        self.students.remove(student)
+
+    def __str__(self):
+        return f"Group: {self.name}\nStudents: {[student.name for student in self.students]}"
+
+class Schedule:
+    def __init__(self):
+        self.schedule = {}  # {course_name: [{"date": datetime, "time": str}]}
+
+    def add_course(self, course_name, dates):
+        self.schedule[course_name] = dates
+
+    def get_schedule(self, course_name):
+        return self.schedule.get(course_name, [])
+
+    def __str__(self):
+        schedule_str = ""
+        for course, dates in self.schedule.items():
+            schedule_str += f"\nCourse: {course}\n"
+            for date_info in dates:
+                schedule_str += f"  Date: {date_info['date'].strftime('%Y-%m-%d')}, Time: {date_info['time']}\n"
+        return schedule_str
+
+
+class Payment:
+    def __init__(self, student, course, amount, date=None):
+        self.student = student
+        self.course = course
+        self.amount = amount
+        self.date = date or datetime.now()
+
+    def __str__(self):
+        return f"Payment: Student - {self.student.name}, Course - {self.course.name}, Amount - {self.amount}, Date - {self.date.strftime('%Y-%m-%d %H:%M:%S')}"
