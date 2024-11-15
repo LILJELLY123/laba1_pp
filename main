@@ -1,0 +1,239 @@
+import xml.etree.ElementTree as ET
+import json
+from datetime import datetime,timedelta
+
+#Класс Курс
+class Course:
+    def __init__(self, name, description, instructor, price):
+        self.name = name
+        self.description = description
+        self.instructor = instructor
+        self.price = price
+
+    def __str__(self):
+        return f"Course: {self.name}\nDescription: {self.description}\nInstructor: {self.instructor}\nPrice: {self.price}"
+
+#Класс Студент
+class Student:
+    def __init__(self, name, email, enrolled_courses=[]):
+        self.name = name
+        self.email = email
+        self.enrolled_courses = enrolled_courses
+
+    def enroll(self, course):
+        self.enrolled_courses.append(course)
+
+    def __str__(self):
+        return f"Student: {self.name}\nEmail: {self.email}\nEnrolled Courses: {', '.join([c.name for c in self.enrolled_courses])}"
+
+#Класс Группа
+class Group:
+    def __init__(self, name, students=[]):
+        self.name = name
+        self.students = students
+
+    def add_student(self, student):
+        self.students.append(student)
+
+    def remove_student(self, student):
+        self.students.remove(student)
+
+    def __str__(self):
+        return f"Group: {self.name}\nStudents: {[student.name for student in self.students]}"
+
+#Класс Расписание
+class Schedule:
+    def __init__(self):
+        self.schedule = {}  # {course_name: [{"date": datetime, "time": str}]}
+
+    def add_course(self, course_name, dates):
+        self.schedule[course_name] = dates
+
+    def get_schedule(self, course_name):
+        return self.schedule.get(course_name, [])
+
+    def __str__(self):
+        schedule_str = ""
+        for course, dates in self.schedule.items():
+            schedule_str += f"\nCourse: {course}\n"
+            for date_info in dates:
+                schedule_str += f"  Date: {date_info['date'].strftime('%Y-%m-%d')}, Time: {date_info['time']}\n"
+        return schedule_str
+
+#Класс Оплата
+class Payment:
+    def __init__(self, student, course, amount, date=None):
+        self.student = student
+        self.course = course
+        self.amount = amount
+        self.date = date or datetime.now()
+
+    def __str__(self):
+        return f"Payment: Student - {self.student.name}, Course - {self.course.name}, Amount - {self.amount}, Date - {self.date.strftime('%Y-%m-%d %H:%M:%S')}"
+
+#Класс Преподаватель
+class Instructor:
+    def __init__(self, name, email):
+        self.name = name
+        self.email = email
+        self.courses = []
+
+    def add_course(self, course):
+        self.courses.append(course)
+
+    def __str__(self):
+        return f"Instructor: {self.name}\nEmail: {self.email}\nCourses: {[course.name for course in self.courses]}"
+
+def read_courses_from_xml(file_path):
+    try:
+        tree = ET.parse(file_path)
+        root = tree.getroot()
+        courses = []
+        for course_element in root.findall('course'):
+            name = course_element.find('name').text
+            description = course_element.find('description').text
+            instructor = course_element.find('instructor').text
+            price = float(course_element.find('price').text)
+            courses.append(Course(name, description, instructor, price))
+        return courses
+    except FileNotFoundError:
+        print(f"Ошибка: Файл не найден: {file_path}")
+        return []
+    except ET.ParseError:
+        print(f"Ошибка: Неверный XML файл: {file_path}")
+        return []
+    except Exception as e:
+        print(f"Ошибка при чтении файла: {e}")
+        return []
+
+def write_courses_to_xml(courses, file_path):
+    try:
+        root = ET.Element("courses")
+        for course in courses:
+            course_element = ET.SubElement(root,"course")
+            ET.SubElement(course_element, "name").text = course.name
+            ET.SubElement(course_element, "description").text = course.description
+            ET.SubElement(course_element, "instructor").text = course.instructor
+            ET.SubElement(course_element, "price").text = str(course.price)
+        tree = ET.ElementTree(root)
+        tree.write(file_path)
+    except Exception as e:
+        print(f"Error writing to XML: {e}")
+
+def read_courses_from_json(file_path):
+    try:
+        with open(file_path, "r") as f:
+            data = json.load(f)
+            courses = []
+            for course_data in data["courses"]:
+                name = course_data["name"]
+                description = course_data["description"]
+                instructor = course_data["instructor"]
+                price = course_data["price"]
+                courses.append(Course(name, description, instructor, price))
+            return courses
+    except FileNotFoundError:
+        print(f"Ошибка: Файл не найден: {file_path}")
+        return []
+    except json.JSONDecodeError:
+        print(f"Ошибка: Неверный JSON файл: {file_path}")
+        return []
+    except Exception as e:
+        print(f"Ошибка при чтении файла JSON: {e}")
+        return []
+
+def write_courses_to_json(courses, file_path):
+    try:
+        data = {"courses": []}
+        for course in courses:
+            course_data = {
+                "name": course.name,
+                "description": course.description,
+                "instructor": course.instructor,
+                "price": course.price
+            }
+            data["courses"].append(course_data)
+        with open(file_path, "w") as f:
+            json.dump(data, f, indent=4)
+    except Exception as e:
+        print(f"Error writing to JSON: {e}")
+
+# Запись данных студента в XML
+def write_student_to_xml(student, file_path):
+    try:
+        root = ET.Element("student")
+        ET.SubElement(root, "name").text = student.name
+        ET.SubElement(root, "email").text = student.email
+        courses_element = ET.SubElement(root, "enrolled_courses")
+        for course in student.enrolled_courses:
+            course_element = ET.SubElement(courses_element, "course")
+            ET.SubElement(course_element, "name").text = course.name
+        tree = ET.ElementTree(root)
+        tree.write(file_path)
+    except Exception as e:
+        print(f"Ошибка записи студента в XML: {e}")
+
+# Запись данных студента в JSON
+def write_student_to_json(student, file_path):
+    try:
+        data = {
+            "name": student.name,
+            "email": student.email,
+            "enrolled_courses": [{"name": course.name} for course in student.enrolled_courses]
+        }
+        with open(file_path, "w") as f:
+            json.dump(data, f, indent=4)
+    except Exception as e:
+        print(f"Ошибка записи студента в JSON: {e}")
+
+# Создание курсов
+course1 = Course("Python Programming", "Learn the fundamentals of Python", "Sergey Gurikov", 3499.99)
+course2 = Course("Computer Graphic", "Graphic design and 3D modelling", "Olga Borisova", 2999.99)
+
+# Создание студента
+student1 = Student("Alexey Shurigin", "alexey@example.com")
+student1.enroll(course1)
+student1.enroll(course2)
+
+schedule = Schedule()
+group1 = Group("Group 1")
+instructor1 = Instructor("Sergey Gurikov", "guria.ser@example.com")
+
+student1 = Student("Alexey Shurigin", "alexey@example.com")
+student2 = Student("Kirill Xan", "xan@example.com")
+
+group1.add_student(student1)
+group1.add_student(student2)
+
+instructor1.add_course(course1)
+
+schedule.add_course("group", [{"date": datetime(2024, 11, 15), "time": "10:00"}, {"date": datetime(2024, 11, 16), "time": "10:00"}])
+
+payment1 = Payment(student1, course1, 50)
+payment2 = Payment(student2, course2, 75)
+
+print(group1)
+print(instructor1)
+print(schedule)
+print(payment1)
+print(payment2)
+
+# Запись студента в XML
+write_student_to_xml(student1, "student.xml")
+
+# Запись студента в JSON
+write_student_to_json(student1, "student.json")
+
+# Запись курсов в XML
+write_courses_to_xml([course1, course2], "courses.xml")
+
+# Чтение курсов в XML
+courses_from_xml = read_courses_from_xml("courses.xml")
+print(courses_from_xml)
+
+# Запись курсов в JSON
+write_courses_to_json([course1, course2], "courses.json")
+
+# Чтение курсов в JSON
+courses_from_json = read_courses_from_json("courses.json")
+print(courses_from_json)
